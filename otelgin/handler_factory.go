@@ -33,7 +33,7 @@ func HandlerFunc(cfg *config.EndpointConfig, next gin.HandlerFunc) gin.HandlerFu
 			next(c)
 		}
 		otelHandler := otelhttp.NewHandler(
-			h,
+			http.HandlerFunc(h),
 			c.Request.URL.Path,
 			otelhttp.WithPropagators(propagation.TraceContext{}),
 		)

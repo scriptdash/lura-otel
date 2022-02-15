@@ -15,11 +15,11 @@ func NewProxyFactory(factory proxy.Factory) proxy.Factory {
 			return proxy.NoopProxy, err
 		}
 		return func(ctx context.Context, request *proxy.Request) (*proxy.Response, error) {
-			span := ctx.Value(currentSpanKey)
+			span, _ := ctx.Value(currentSpanKey).(trace.Span)
 			if span != nil {
 				ctx = trace.ContextWithSpan(ctx, span)
 			}
-			next(ctx, request)
-		}
+			return next(ctx, request)
+		}, nil
 	})
 }
