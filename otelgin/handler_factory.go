@@ -12,11 +12,11 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-type contextKey int
+type ContextKey int
 
 const (
-	tracerKey      string = "lura-otel-tracer"
-	currentSpanKey string = "lura-otel-current-span"
+	TracerKey      string = "lura-otel-tracer"
+	CurrentSpanKey string = "lura-otel-current-span"
 )
 
 func NewHandlerFactory(hf router.HandlerFactory) router.HandlerFactory {
@@ -29,7 +29,7 @@ func HandlerFunc(cfg *config.EndpointConfig, next gin.HandlerFunc) gin.HandlerFu
 	return func(c *gin.Context) {
 		h := func(_ http.ResponseWriter, r *http.Request) {
 			span := trace.SpanFromContext(r.Context())
-			c.Set(currentSpanKey, span)
+			c.Set(CurrentSpanKey, span)
 			next(c)
 		}
 		otelHandler := otelhttp.NewHandler(
