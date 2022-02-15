@@ -1,0 +1,25 @@
+package otelgin
+
+import (
+	"context"
+
+	"github.com/luraproject/lura/config"
+	"github.com/luraproject/lura/proxy"
+	"go.opentelemetry.io/otel/trace"
+)
+
+func NewProxyFactory(factory proxy.Factory) proxy.Factory {
+	return proxy.FactoryFunc(func(cfg *config.EndpointConfig) (proxy.Proxy, error) {
+		next, err := factory.New(cfg)
+		if err != nil {
+			return proxy.NoopProxy, err
+		}
+		return func(ctx context.Context, request *proxy.Request) (*proxy.Response, error) {
+			span := ctx.Value(currentSpanKey)
+			if span != nil {
+				ctx = trace.ContextWithSpan(ctx, span)
+			}
+			next(ctx, request)
+		}
+	})
+}
